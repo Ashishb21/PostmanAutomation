@@ -1,0 +1,3994 @@
+{
+	"info": {
+		"_postman_id": "8904f9a0-7df5-404b-99be-6bcb9b6dea4a",
+		"name": "MOSMSSUBMIT-Staging_Ian_Jenkins",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TC_0_MOSMSSUBMIT_MANAGEMENT_BYPASS_NEW",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cc592c6c-7a8a-4f0e-ad20-7fad58d4d141",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Sucess\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 6000); "
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a4899981-c7f8-495f-98ff-d1a5c0708ff9",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_mgmtbypass\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>MOSMSSUBMIT_MGMTBYPASS</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_0_DB_MOSMSSUBMIT_MANAGEMENT_BYPASS_NEW",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3d8edf94-fb51-4bc2-8ae8-40bb48470fb7",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_mgmtbypass\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is mgmt/sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"mgmt\"||jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject.statusResponse.msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+mgmtqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(mgmtqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_1_MOSMSSUBMIT_SOURCE_CHECKS_NOTFOUND",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5630c0b6-c8db-43d7-9fb1-50858f48a9e4",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 6000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8d0d2503-dcea-4b00-b797-2ddd9ce44b87",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdninvalid\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"sourcemsisdninvalid\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"    len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdninvalid}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdninvalid}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>source not found </user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_1_DB_MOSMSSUBMIT_SOURCE_CHECKS_NOTFOUND",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ab48bebc-5584-4217-b805-28b516992b7b",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdninvalid\");",
+							"var destinationmsisdn =pm.environment.get(\"sourcemsisdninvalid\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is Blocked\"] =jsonObject[\"statusResponse\"].msg.Status==\"blocked\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"pm.test(\"STATUS EXTENTED CHECK --Source not found\" , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not found:\"+sourcemsisdn);",
+							"});",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"//pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+mgmtqueue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(mgmtqueue);",
+							"//});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_2_MOSMSSUBMIT_SOURCE_CHECKS_NOTENABLED",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ab7bce0f-0956-4832-ae96-1589dac81138",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "cfedaa6f-0ef0-4c13-b533-1807ae0a6e5e",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_notenabled\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_notenabled\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn_notenabled}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn_notenabled}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_02 MOSMSSUBMIT_SOURCECHECK_NOTENABLED</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_2_DB_MOSMSSUBMIT_SOURCE_CHECKS_NOTENABLED",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b15565ce-1e86-4383-9ae8-92815e3dc6b5",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn_notenabled\");",
+							"var destinationmsisdn =pm.environment.get(\"sourcemsisdn_notenabled\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is Blocked\"] =jsonObject[\"statusResponse\"].msg.Status==\"blocked\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"});",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"//pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+mgmtqueue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(mgmtqueue);",
+							"//});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_3_MOSMSSUBMIT_SOURCE_CHECKS_PROFILE_NOTENABLED",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4d8e479c-5645-47f7-a456-64c96e4d56d6",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId!=='';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0de5d695-c80b-4891-9924-58a081d8c3f1",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_profilenotenabled\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_profilenotenabled\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn_profilenotenabled}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn_profilenotenabled}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_03 MOSMSSUBMIT_SOURCEPROFILE_NOTENABLED</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_3_DB_MOSMSSUBMIT_SOURCE_CHECKS_PROFILE_NOTENABLED",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a3369750-2c99-4127-a3aa-169320ae5856",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn_profilenotenabled\");",
+							"var destinationmsisdn =pm.environment.get(\"sourcemsisdn_profilenotenabled\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is Blocked\"] =jsonObject[\"statusResponse\"].msg.Status==\"blocked\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"pm.test(\"STATUS EXTENTED CHECK --Source Profile not enabled\" , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source profile not enabled:\"+sourcemsisdn);",
+							"});",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"//pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+mgmtqueue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(mgmtqueue);",
+							"//});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_4_MOSMSSUBMIT_SOURCE_CHECKS_SOURCE_WHITELIST_FAIL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "78e88dda-69ee-4642-bb5a-8f7be426c497",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "40e23d4a-cb45-4de4-8b05-7bd9809bd0e5",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_whitelistfailed\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_whitelistfailed\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"    len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn_whitelistfailed}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn_whitelistfailed}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>source not found </user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_4_DB_MOSMSSUBMIT_SOURCE_CHECKS_SOURCE_WHITELIST_FAIL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3851becb-a8a2-4368-8ff7-f94557b194c9",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn_whitelistfailed\");",
+							"var destinationmsisdn =pm.environment.get(\"sourcemsisdn_whitelistfailed\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is Blocked\"] =jsonObject[\"statusResponse\"].msg.Status==\"blocked\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"pm.test(\"STATUS EXTENTED CHECK --Source Whitelist Failed:\" , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source Whitelist Failed:\"+sourcemsisdn);",
+							"});",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"//pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+mgmtqueue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(mgmtqueue);",
+							"//});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_5_MOSMSSUBMIT_SOURCE_CHECKS_SOURCE_BLACKLIST_FAIL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b99d3c04-e7c6-4368-a6f1-90f70391c550",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "bab45c74-46b3-45e4-b529-11f0358fc82f",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_blacklistfail\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_blacklistfail\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn_blacklistfail}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn_blacklistfail}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>source not found </user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_5_DB_MOSMSSUBMIT_SOURCE_CHECKS_SOURCE_BLACKLIST_FAIL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "33e83569-d114-470e-b26d-0956467365c7",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn_blacklistfail\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_blacklistfail\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is Blocked\"] =jsonObject[\"statusResponse\"].msg.Status==\"blocked\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source Blacklist Failed:\"+sourcemsisdn);",
+							"});",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"//pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+mgmtqueue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(mgmtqueue);",
+							"//});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_6_MOSMSSUBMIT_API_INTERCEPT_USERID_FOUND",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "996a10fc-f240-4702-a173-66517d8a111d",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a4c2bdeb-25cb-4076-bfc2-5769df9702ba",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_apiinterceptuseridfound\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_invalid\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn_apiinterceptuseridfound}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn_apiinterceptuseridfound}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_06-API_INTERCEPT_USERID_FOUND </user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_6_DB_MOSMSSUBMIT__API_INTERCEPT_USERID_FOUND",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "75ceaff3-6a18-45fc-b24b-ede483ef1d88",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn_apiinterceptuseridfound\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_invalid\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"//+sourcemsisdn);",
+							"//});",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_7_MOSMSSUBMIT_API_INTERCEPT_USERID_NOT_FOUND",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c3a0ff9d-f07f-46b6-934d-90cb62032668",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							"",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "30b9cf4e-bf5e-4dec-8df4-0069cdae7b6b",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_apiinterceptuseridnotfound\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_invalid\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"    len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn_apiinterceptuseridnotfound}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn_apiinterceptuseridnotfound}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_07_MOSMSSUBMIT_APIINTERCEPT_USERIDNOTFOUND</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_7_DB_MOSMSSUBMIT_API_INTERCEPT_USERID_NOT_FOUND",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "eaa0815d-d2c0-48b9-b1a9-a543c9edff40",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn_apiinterceptuseridnotfound\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_invalid\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is Blocked\"] =jsonObject[\"statusResponse\"].msg.Status==\"blocked\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"//pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+mgmtqueue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(mgmtqueue);",
+							"//});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_8_MOSMSSUBMIT_API_NUMBER_DEFAULT_MSISDN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1aab1a3b-f55e-41ae-91cb-66d8a294d312",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							"",
+							"",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "7c645901-fe1c-4370-9ce7-9235790af925",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_apinumber_default\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_08_APINumber_DefaultMsisdn</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_8_DB_MOSMSSUBMIT_API_NUMBER_DEFAULT_MSISDN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4524c3c3-c910-44f0-9dea-f0120ec82c28",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_apinumber_default\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"//tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test//(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_9_MOSMSSUBMIT_ONWARD_ROUTE_SINGLE_DEFAULT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8df39ec6-8bca-4a28-b16c-0e5205100d87",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4ae7d023-bfcb-44ca-bb22-362a25f4a7cd",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_defaultroute\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_09_OnwardRoute_Single_Default</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_9_DB_MOSMSSUBMIT_ONWARD_ROUTE_SINGLE_DEFAULT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "855696af-8931-4263-aa9f-dc0e71c40569",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_defaultroute\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"//tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test//(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_10_MOSMSSUBMIT_MAP_SOURCE_MSISDN_MAPPING",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aab5adcd-11ab-4216-9a51-22d3e06b543c",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8e1b843b-611a-4f66-b980-e15def76333e",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn_msisdnmapping\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_defaultroute\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn_msisdnmapping}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn_msisdnmapping}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>api number default msisdn</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_10_DB_MOSMSSUBMIT_MAP_SOURCE_MSISDN_MAPPING",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "439fa585-1762-4f52-a0e4-4da5ff420719",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn_msisdnmapping\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_defaultroute\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"var sourcemsisdnmap=\"888888888811\"",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"//tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test//(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdnmap, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdnmap);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_11_MOSMSSUBMIT_ONWARD_ROUTE_SINGLE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "57ca0f1f-94c8-4434-9a16-5b25e1d2415f",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							"",
+							"",
+							"",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8ae3b2b0-9b6a-474b-aaad-1d9e0e81058f",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_route\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_11_MOSMSSUBMIT_ONWARDROUTE_SINGLE</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_11_DB_MOSMSSUBMIT_ONWARD_ROUTE_SINGLE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "81a39dbf-b8e2-43d5-95a2-5836ab43e3c6",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_route\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"//tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test//(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_12_MOSMSSUBMIT_ONWARD_ROUTE_ALT_DEST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "87dc1273-c515-45e4-a50f-74ce36de9856",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							"",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b06e87cd-0c56-43d3-8140-c5b46af9bffc",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destination_msisdn_onward_route_alt_dest\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"     len= msisdnswap.length",
+							"    //console.log(len);",
+							"    if (len==12){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"       newtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"    //console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>TC_12_MOSMSSUBMIT_ONWARD_ROUTE_ALT_DEST</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_12_DB_MOSMSSUBMIT_ONWARD_ROUTE_ALT_DEST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1789482e-ac0e-45cf-918e-d990133f69ed",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destination_msisdn_onward_route_alt_dest\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"//billing source is default msisdn in api conf table and billing is api ",
+							"var manxqueue =\"Messaging.Manx\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var destinationmsisdnaux=\"44762482563893\";",
+							"var cntcoqueue =\"SMPP.Cncto\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"console.log(\"ALT -DESTINATION MSISDN -CNCTO ROUTE CHECK\");",
+							"//Status Assert",
+							"pm.test(\"STATUS CHECK --Status is sent\" , function () {",
+							"    pm.expect(jsonObject.statusResponse.msg[1].Status).to.eql(\"sent\");",
+							"});",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[1].Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[1].BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdnaux, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[1].Destination).to.eql(destinationmsisdnaux);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[1].OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"TEXT MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[1].Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+cntcoqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[1].RoutingQueue).to.eql(cntcoqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"",
+							"console.log(\"DESTINATION MSISDN -MANX ROUTE CHECK\");",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg[0].Status==\"sent\";",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[0].Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[0].BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[0].Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[0].OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"TEXT MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[0].Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \", function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg[0].SourceQueue).to.eql();",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg[0].RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_13_MOSMSSUBMIT_ONWARD_ROUTE_DEFAULT_NORMALTEXT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ee531b29-733f-4bc2-8247-b82f42e34614",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f0976fd3-47be-4546-8976-8469bb7640c5",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_defaultroute\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text- ABCDEFGHIJKLMNOPQRSTUWXYZabcdefghijklmnopqrstwxyz1234567890#'@\\\"<?/!.~% %\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi00088C004100420043004400450046004700480049004A004B004C004D004E004F005000510052005300540055005700580059005A006100620063006400650066006700680069006A006B006C006D006E006F00700071007200730074007700780079007A00310032003300340035003600370038003900300023002700400022003C003F002F0021002E007E0025';",
+							"    //normal tpdu -ABCDEFGHIJKLMNOPQRSTUWXYZabcdefghijklmnopqrstwxyz1234567890#'@\"<?/!.~% %",
+							"   len= msisdnswap.length",
+							"    //console.log(len);",
+							"  \tif (len==12){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"  \t//console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>ABCDEFGHIJKLMNOPQRSTUWXYZabcdefghijklmnopqrstwxyz1234567890#'@\"?/!.~% %</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_13_DB_MOSMSSUBMIT_ONWARD_ROUTE_DEFAULT_NORMALTEXT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "eb399c6e-91a9-4861-909f-bc0498a06864",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_defaultroute\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"//tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test//(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_14_MOSMSSUBMIT_ONWARD_ROUTE_DEFAULT_CHINESETEXT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bd5c7fc8-b871-4969-b6eb-549a308f7aa1",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8fe05340-075a-42a6-8652-bcc2e793d386",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_defaultroute\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text-你的机器ID {machineNumber10002} {在} {machineLocation127.0.1} 已用完糖浆3，请补充。谢谢\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi00088C4F607684673A5668004900440020007B006D0061006300680069006E0065004E0075006D00620065007200310030003000300032007D0020007B5728007D0020007B006D0061006300680069006E0065004C006F0063006100740069006F006E003100320037002E0030002E0031007D00205DF275285B8C7CD66D460033FF0C8BF78865514530028C228C22';",
+							"    //chinese tpdu -你的机器ID {machineNumber10002} {在} {machineLocation127.0.1} 已用完糖浆3，请补充。谢谢",
+							"   len= msisdnswap.length",
+							"    //console.log(len);",
+							"  \tif (len==12){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"  \t//console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>你的机器ID {machineNumber10002} {在} {machineLocation127.0.1} 已用完糖浆3，请补充。谢谢</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_14_DB_MOSMSSUBMIT_ONWARD_ROUTE_DEFAULT_CHINESETEXT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6b5a3588-1d4b-466f-9edd-1894e0e21744",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_defaultroute\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"//tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test//(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_15_MOSMSSUBMIT_ONWARD_ROUTE_DEFAULT_RUSSIANTEXT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0f0f68c6-81be-48f6-bf2d-8ef85f83de8e",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Success\"] = responseBody.has(\"<status>success</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ad4ba8d4-7f08-4651-8c63-e716f0c1d17b",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_defaultroute\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"    len= msisdnswap.length",
+							"    //console.log(len);",
+							"  \tif (len==12){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"  \t//console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>Russian text </user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_15_DB_MOSMSSUBMIT_ONWARD_ROUTE_DEFAULT_RUSSIANTEXT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "15fa6095-fa10-4398-964f-12fc5b81ebd6",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_defaultroute\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is sent\"] =jsonObject[\"statusResponse\"].msg.Status==\"sent\";",
+							"",
+							"//Status Extented ",
+							"//Source Msisdn Assert",
+							"//pm.test(\"STATUS EXTENTED CHECK --Source not enabled\" , function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Source not enabled:\"+sourcemsisdn);",
+							"//});",
+							"",
+							"//Status Extented ",
+							"//tests[\"STATUS EXTENTED CHECK --No Intercept Route\"] = /^[No Intercept Route:(0-9|a-z|A-Z)]+$/.test//(jsonObject[\"statusResponse\"].msg.StatusExtended);",
+							"",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Billing Source Assert",
+							"pm.test(\"BILLING SOURCE CHECK --Billing Source is \"+sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.BillingSource).to.eql(sourcemsisdn);",
+							"});",
+							"",
+							"//Destination Assert",
+							"pm.test(\"DESTINATION CHECK --Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Destination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Original Destination Assert",
+							"pm.test(\" ORIGINAL DESTINATION CHECK --Orginal Destination is \"+destinationmsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.OriginalDestination).to.eql(destinationmsisdn);",
+							"});",
+							"",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							"",
+							"//Source Queue Assert",
+							"//pm.test(\"SOURCE QUEUE CHECK --Source Queue is \"+queue, function () {",
+							"//    pm.expect(jsonObject[\"statusResponse\"].msg.SourceQueue).to.eql(queue);",
+							"//});",
+							"",
+							"//Routing Queue Assert",
+							"pm.test(\"ROUTING QUEUE CHECK --Routing Queue is \"+manxqueue, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.RoutingQueue).to.eql(manxqueue);",
+							"});",
+							"",
+							"//Return Queue Assert",
+							"//pm.test(\"RETURN QUEUE CHECK--Return Queue is \"+manxqueue, function () {",
+							"  //  pm.expect(jsonObject[\"statusResponse\"].msg.ReturnQueue).to.eql(manxqueue);",
+							"//});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_16_MOSMSSUBMIT_NORMALTEXT_160CHARCTER_LENGTH_CHECK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6a0deafc-905f-426a-a10f-bb57f4cc73b5",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "50321fae-ce5a-406b-bff0-6a3fab73bb67",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_defaultroute\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text- ABCDEFGHIJKLMNOPQRSTUWXYZabcdefghijklmnopqrstwxyz1234567890#'@\\\"<?/!.~% %\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi00088C004100420043004400450046004700480049004A004B004C004D004E004F005000510052005300540055005700580059005A006100620063006400650066006700680069006A006B006C006D006E006F00700071007200730074007700780079007A00310032003300340035003600370038003900300023002700400022003C003F002F0021002E007E0025';",
+							"    //normal tpdu -ABCDEFGHIJKLMNOPQRSTUWXYZabcdefghijklmnopqrstwxyz1234567890#'@\"<?/!.~% %",
+							"   len= msisdnswap.length",
+							"    //console.log(len);",
+							"  \tif (len==12){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"  \t//console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>This is to test charcter lenght of 160 characters MOSMSSUBMIT MANX AuTomation Test script ...This is to test charcter lenght of 160 characters MOSMSSUBMIT MANX1.</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_16_DB_MOSMSSUBMIT_NORMALTEXT_160CHARACTER_LENGHT_CHECK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f8a7d0e9-b1b5-44e8-bcd5-25836952c782",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_defaultroute\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is error\"] =jsonObject[\"statusResponse\"].msg.Status==\"error\";",
+							"//Status Extented ",
+							"pm.test(\"STATUS EXTENTED CHECK --Max message length of 160 chars exceeded\" , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Max message length of 160 chars exceeded\");",
+							"});",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_17_MOSMSSUBIT_RUSSIANTEXT_160CHARACTER_LENGTH_CHECK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d3677ef7-21f5-4602-a09e-0d7f13342b75",
+						"type": "text/javascript",
+						"exec": [
+							"var jsonObject = xml2Json(responseBody);",
+							"tests[\"Status message--Reject\"] = responseBody.has(\"<status>reject</status>\");",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Message Id is not null\"] = jsonObject[\"mo-sms-submit-response\"].messageId !== '';",
+							"",
+							"postman.setEnvironmentVariable(\"messageId\", jsonObject[\"mo-sms-submit-response\"].messageId);",
+							"",
+							"console.log(\"===Request===\");",
+							"console.log(request.data);",
+							"console.log(\"====Response===\");",
+							"console.log(responseBody);",
+							"setTimeout(function(){ ",
+							"    }, 10000); ",
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f6bba765-39f8-4e4e-8dcc-f6a0273aeddd",
+						"type": "text/javascript",
+						"exec": [
+							"var messageId_auto = \"TestID\" + getRandomText();",
+							"postman.setEnvironmentVariable(\"messageId_auto\", messageId_auto);",
+							"var sourcemsisdn = postman.getEnvironmentVariable(\"sourcemsisdn\");",
+							"var destinationmsisdn = postman.getEnvironmentVariable(\"destinationmsisdn_single_defaultroute\");",
+							"console.log(\"source msisdn-\"+sourcemsisdn);",
+							"console.log(\"destination msisdn-\"+destinationmsisdn);",
+							"console.log(\"text message -Быстрая, коричневая лиса, перепрыгнула через ленивого пса\");",
+							"msisdnswap=swap(destinationmsisdn);",
+							"//console.log(msisdnswap);",
+							"newtpdu =replacetpdu(msisdnswap);",
+							"postman.setEnvironmentVariable(\"tpdu\", newtpdu);",
+							"",
+							"//function",
+							"function getRandomText(){",
+							"    var charset = \"abcdefghijklmnopqrstuvwxyz0123456789\";",
+							"    var text = \"\";",
+							"    for( var i=0; i < 5; i++ ){",
+							"        text += charset.charAt(Math.floor(Math.random() * charset.length));",
+							"    }",
+							"    return text;",
+							"}",
+							"",
+							"function swap(msisdn){ ",
+							"    var arr =Array.from(msisdn.toString()).map(Number);",
+							"    n=arr.length;",
+							"    if (n%2==1){",
+							"        arr= arr.concat(\"f\");",
+							"    }",
+							"    for(i=0;i < n;i+=2)",
+							"    {",
+							"        temp    = arr[i];",
+							"        arr[i]  = arr[i+1];",
+							"        arr[i+1]= temp;",
+							"    }",
+							"    return arr.join('');",
+							"}",
+							"//var digits =Array.from(msisdn.toString()).map(Number);",
+							"",
+							"function replacetpdu(msisdnswap){",
+							"    var tpdu ='0100le91replacemsi0008740411044B0441044204400430044F002C0020043A043E044004380447043D043504320430044F0020043B043804410430002C0020043F043504400435043F0440044B0433043D0443043B04300020044704350440043504370020043B0435043D04380432043E0433043E0020043F044104300020';",
+							"    //russian tpdu -- Быстрая, коричневая лиса, перепрыгнула через ленивого пса",
+							"    len= msisdnswap.length",
+							"    //console.log(len);",
+							"  \tif (len==12){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0C');",
+							"    }",
+							"    if (len==14){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0E');",
+							"    }",
+							"  ",
+							"    if (len==10){",
+							"     \tnewtpdu=tpdu.replace('replacemsi',msisdnswap);",
+							"        newtpdu=newtpdu.replace('le','0A');",
+							"     }",
+							"  ",
+							"    //console.log(tpdu);",
+							"  \t//console.log(msisdnswap.length)",
+							"    console.log(\"tpdu--\"+newtpdu);",
+							"    return newtpdu;",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"{{messageId_auto}}\"> \r\n<msisdn provider=\"networkname\">{{sourcemsisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{sourcemsisdn}}</aux-msisdn> \r\n<user-data-tpdu>{{tpdu}}</user-data-tpdu> \r\n<user-data-text>Быстрая, коричневая лиса, перепрыБыстрая, кори</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mosmssubmitmanx/index",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mosmssubmitmanx",
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TC_15_DB_MOSMSSUBMIT_RUSSIANTEXT_160CHARACTER_LENGTH_CHECK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9a433b9-6207-4737-86c9-0bb745ca51c1",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"var jsonObject = xml2Json(responseBody);",
+							"",
+							"var dbstatus = jsonObject[\"statusResponse\"].Status;",
+							"var sourcemsisdn = pm.environment.get(\"sourcemsisdn\");",
+							"var destinationmsisdn =pm.environment.get(\"destinationmsisdn_single_defaultroute\");",
+							"var tpdu =pm.environment.get(\"tpdu\");",
+							"var mgmtqueue =\"Messaging.Mgmt\";",
+							"var queue =\"Messaging.AutomationTest\";",
+							"var manxqueue =\"Messaging.Manx\";",
+							"",
+							"//Status=200 Assert",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"//Status Assert",
+							"tests[\"STATUS CHECK --Status is error\"] =jsonObject[\"statusResponse\"].msg.Status==\"error\";",
+							"//Status Extented ",
+							"pm.test(\"STATUS EXTENTED CHECK --Max message length of 160 chars exceeded\" , function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.StatusExtended).to.eql(\"Max message length of 160 chars exceeded\");",
+							"});",
+							"//Source Msisdn Assert",
+							"pm.test(\"SOURCE MSISDN CHECK --Source is \" +sourcemsisdn, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Source).to.eql(sourcemsisdn);",
+							"});",
+							"//Text Assert",
+							"pm.test(\"MESSAGE CHECK --Text is \"+tpdu, function () {",
+							"    pm.expect(jsonObject[\"statusResponse\"].msg.Message).to.eql(tpdu);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<mo-sms-submit-request version=\"1.21\" id=\"309\"> \r\n<msisdn provider=\"networkname\">{{msisdn}}</msisdn> \r\n<aux-msisdn provider=\"networkname\">{{msisdn}}</aux-msisdn> \r\n<user-data-tpdu>11000C914455550310100000FF0AF4F29C9E769FDDE53B</user-data-tpdu> \r\n<user-data-text>{{text_message}}</user-data-text> \r\n</mo-sms-submit-request>"
+				},
+				"url": {
+					"raw": "http://{{url}}/mtstatusapi/index/getactivitystatus/msgId/{{messageId}}",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"mtstatusapi",
+						"index",
+						"getactivitystatus",
+						"msgId",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
